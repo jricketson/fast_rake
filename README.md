@@ -1,7 +1,7 @@
 fast_rake
 =========
 
-## SYNOPSIS
+### SYNOPSIS
 
 This is a spinoff from making the local developer build faster. The intention is to run a whole bunch of independant tests in parallel
 without overloading the computer by spinning them all up at once. 
@@ -60,15 +60,13 @@ TEST_DB_NAME: this is the name of the database that has been created
 TEST_ENV_NUMBER: this is an incrementing number for each task that is started. Useful for ensuring unique resources for running tests (ports etc)
 
 
-## REQUIREMENTS
 
-
-## INSTALLATION
+### INSTALLATION
 Include in your Gemfile
   gem 'fast_rake'
 
 
-== LICENSE
+### LICENSE
 
 (The MIT License)
 
