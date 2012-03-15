@@ -3,8 +3,8 @@ fast_rake
 
 ### SYNOPSIS
 
-This is a spinoff from making the local developer build faster. The intention is to run a whole bunch of independant tests in parallel
-without overloading the computer by spinning them all up at once. 
+This is a spinoff from making our local developer build faster. The intention is to run a whole bunch of independant tests in parallel
+without overloading the computer by spinning them all up at once. We were able to reduce our total build time from about 40 mins to about 10 mins, and our total frustration by more than 100 times!
 
 ### Usage
 For example, in lib/tasks/fast.rake
@@ -38,8 +38,8 @@ For example, in lib/tasks/fast.rake
     end
     task :fast,[:list] => "fast:two"
   
-Then tasks fast:two, fast:four and fast:eight will have been created.
-These tasks can be executed from the command line with arguments as well:
+Then tasks fast:two, fast:four and fast:eight will have been created, which when run will run the full set of your tests.
+These tasks can also be executed with a specific list of tasks:
 
     rake "fast:four[task1,task2]"
 
