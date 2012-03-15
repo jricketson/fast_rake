@@ -1,12 +1,12 @@
-= fast_rake
+fast_rake
+=========
 
-
-== SYNOPSIS
+## SYNOPSIS
 
 This is a spinoff from making the local developer build faster. The intention is to run a whole bunch of independant tests in parallel
 without overloading the computer by spinning them all up at once. 
 
-=== Usage
+### Usage
 For example, in lib/tasks/fast.rake
   require 'fast_rake'
 
@@ -35,16 +35,16 @@ For example, in lib/tasks/fast.rake
     ]
     
     FastRake::fast_runner(setup_tasks, tests)
-
+  
   end
-
+  
   task :fast,[:list] => "fast:two"
   
 Then tasks fast:two, fast:four and fast:eight will have been created.
 These tasks can be executed from the command line with arguments as well:
   rake "fast:four[task1,task2]"
 
-=== Databases
+### Databases
 A database is created for each task by the name of the task, to use these you should modify your database.yml to contain something like:
 
   test:
@@ -54,21 +54,18 @@ A database is created for each task by the name of the task, to use these you sh
     username: <%= ENV['USER'] %>
     min_messages: WARNING
 
-=== Environment variables
+### Environment variables
 Some environment variables are setup for your use.
 TEST_DB_NAME: this is the name of the database that has been created
 TEST_ENV_NUMBER: this is an incrementing number for each task that is started. Useful for ensuring unique resources for running tests (ports etc)
 
 
-== REQUIREMENTS
+## REQUIREMENTS
 
 
-== INSTALLATION
+## INSTALLATION
 Include in your Gemfile
-  gem 'fast_rake'  
-
-
-== DEVELOPMENT
+  gem 'fast_rake'
 
 
 == LICENSE
