@@ -64,6 +64,7 @@ TEST_ENV_NUMBER: this is an incrementing number for each task that is started. U
 
 ### INSTALLATION
 Include in your Gemfile
+
     gem 'fast_rake'
 
 
