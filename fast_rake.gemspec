@@ -22,11 +22,9 @@ Gem::Specification.new do |s|
   #s.add_runtime_dependency '...', '~> x.y.z'
   s.add_development_dependency 'gemma', '~> 2.1.0'
 
-  s.files       = Dir.glob('lib/**/*.rb') + %w(README.rdoc)
+  s.files       = Dir.glob('lib/**/*.rb')
 
   s.rdoc_options = [
-    "--main",    "README.rdoc",
     "--title",   "#{s.full_name} Documentation"]
-  s.extra_rdoc_files << "README.rdoc"
 end
 
