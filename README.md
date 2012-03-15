@@ -41,7 +41,7 @@ For example, in lib/tasks/fast.rake
 Then tasks fast:two, fast:four and fast:eight will have been created.
 These tasks can be executed from the command line with arguments as well:
 
-  rake "fast:four[task1,task2]"
+    rake "fast:four[task1,task2]"
 
 ### Databases
 A database is created for each task by the name of the task, to use these you should modify your database.yml to contain something like:
@@ -55,14 +55,16 @@ A database is created for each task by the name of the task, to use these you sh
 
 ### Environment variables
 Some environment variables are setup for your use.
+
 TEST_DB_NAME: this is the name of the database that has been created
+
 TEST_ENV_NUMBER: this is an incrementing number for each task that is started. Useful for ensuring unique resources for running tests (ports etc)
 
 
 
 ### INSTALLATION
 Include in your Gemfile
-  gem 'fast_rake'
+    gem 'fast_rake'
 
 
 ### LICENSE
