@@ -8,51 +8,50 @@ without overloading the computer by spinning them all up at once.
 
 ### Usage
 For example, in lib/tasks/fast.rake
-  require 'fast_rake'
+    require 'fast_rake'
 
-  namespace :fast do
-    
-    setup_tasks = [
-      "environment:testing",
-      "clean_and_package",
-      "db:migrate"
-    ]
+    namespace :fast do
+      
+      setup_tasks = [
+        "environment:testing",
+        "clean_and_package",
+        "db:migrate"
+      ]
 
-    tests = [
-      "spec:covered",
-      "cucumber:firefox_g1",
-      "cucumber:firefox_g2",
-      "cucumber:firefox_g2",
-      "cucumber:firefox_ungrouped",
-      "cucumber:firefox_offline_g1",
-      "cucumber:firefox_offline_g2",
-      "cucumber:firefox_offline_g2",
-      "cucumber:firefox_offline_ungrouped",
-      "jasmine:integration",
-      "jasmine:chrome_integration",
-      "jasmine:phantom",
-      "quality"
-    ]
-    
-    FastRake::fast_runner(setup_tasks, tests)
-  
-  end
-  
-  task :fast,[:list] => "fast:two"
+      tests = [
+        "spec:covered",
+        "cucumber:firefox_g1",
+        "cucumber:firefox_g2",
+        "cucumber:firefox_g2",
+        "cucumber:firefox_ungrouped",
+        "cucumber:firefox_offline_g1",
+        "cucumber:firefox_offline_g2",
+        "cucumber:firefox_offline_g2",
+        "cucumber:firefox_offline_ungrouped",
+        "jasmine:integration",
+        "jasmine:chrome_integration",
+        "jasmine:phantom",
+        "quality"
+      ]
+      
+      FastRake::fast_runner(setup_tasks, tests)
+    end
+    task :fast,[:list] => "fast:two"
   
 Then tasks fast:two, fast:four and fast:eight will have been created.
 These tasks can be executed from the command line with arguments as well:
+
   rake "fast:four[task1,task2]"
 
 ### Databases
 A database is created for each task by the name of the task, to use these you should modify your database.yml to contain something like:
 
-  test:
-    adapter: postgresql
-    host: localhost
-    database: <%= ENV["TEST_DB_NAME"] %>
-    username: <%= ENV['USER'] %>
-    min_messages: WARNING
+    test:
+      adapter: postgresql
+      host: localhost
+      database: <%= ENV["TEST_DB_NAME"] %>
+      username: <%= ENV['USER'] %>
+      min_messages: WARNING
 
 ### Environment variables
 Some environment variables are setup for your use.
