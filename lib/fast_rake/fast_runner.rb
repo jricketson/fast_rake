@@ -20,7 +20,6 @@ class FastRake::FastRunner
 
   def run
     clean_previous_results
-    check_if_previous_processes_really_finished
     @start = Time.now
 
     put_w_time %{Started at #{Time.now.strftime("%H:%M:%S")}}
@@ -34,20 +33,6 @@ class FastRake::FastRunner
   end
 
   private
-
-  def check_if_previous_processes_really_finished
-    process = `ps aux | grep -E "ruby|selenium" | grep -vE "grep|foreman|script\/worker|guard|memcached|growl_notify_buildlight|gem server|#{Process.pid}"`
-    lines = process.split("\n")
-    if lines.length > 0
-      puts lines
-      prompt = "#{YELLOW}These ruby|selenium processes were found to be running. Do you want to continue (Y)? (ctrl-c to stop)#{RESET}"
-      puts prompt
-      STDIN.each_line do |line|
-        return if line.downcase.chomp == 'y'
-        puts prompt
-      end
-    end
-  end
 
   def results_folder
     Rails.root.join('tmp', 'build')
