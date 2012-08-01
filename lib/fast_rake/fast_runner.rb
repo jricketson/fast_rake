@@ -88,8 +88,8 @@ class FastRake::FastRunner
   def setup_database(task_name)
     ENV["TEST_DB_NAME"] = "test_#{task_string(task_name)}"
     puts "RAILS_ENV is #{ENV["RAILS_ENV"]} and TEST_DB_NAME is #{ENV["TEST_DB_NAME"]}"
-    Rake::Task["db:create"].reenable
-    Rake::Task["db:create"].invoke
+    Rake::Task["db:recreate"].reenable
+    Rake::Task["db:recreate"].invoke
     Rake::Task["db:test:prepare"].reenable
     Rake::Task["db:test:prepare"].invoke
   end
