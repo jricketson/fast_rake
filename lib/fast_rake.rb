@@ -18,7 +18,6 @@ module FastRake
       else
         run_tasks
       end
-      #puts %{\n\e[33mTo rerun: ber "fast:#{name}[#{tasks_to_run.join(' ')}]"\033[0m\n\n}
       FastRunner.new(tasks_to_run, processes).run
     end
   end
