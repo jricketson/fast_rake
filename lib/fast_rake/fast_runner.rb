@@ -116,10 +116,10 @@ class FastRake::FastRunner
     put_w_time "#{YELLOW}Remaining: #{@tasks.join(' ')}#{RESET}"
   end
 
-  def puts_rerun
+  def puts_rerun(current_task)
     return if @children.length == 0
     child_names = @children.values.collect { |v| v[:name] }
-    outstanding = [task[:name], child_names, @tasks].flatten
+    outstanding = [current_task[:name], child_names, @tasks].flatten
     put_w_time "#{YELLOW}Rerun with: ['#{outstanding.join(' ')}']#{RESET}"
   end
 
@@ -151,7 +151,7 @@ class FastRake::FastRunner
         else
           if !@failed
             put_w_time "#{RED}[#{task[:name]}] Build failed. Output can be found in #{output_path}#{RESET}"
-            puts_rerun
+            puts_rerun(task)
             @failed=true
             kill_remaining_children
           end
