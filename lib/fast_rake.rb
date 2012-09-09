@@ -28,7 +28,7 @@ module FastRake
     when /darwin9/
       `hwprefs cpu_count`.to_i
     when /darwin/
-      (hwprefs_available? ? `hwprefs thread_count` : `sysctl -n hw.ncpu`).to_i
+      (_hwprefs_available? ? `hwprefs thread_count` : `sysctl -n hw.ncpu`).to_i
     when /linux|cygwin/
       `grep -c processor /proc/cpuinfo`.to_i
     when /(open|free)bsd/
@@ -45,4 +45,8 @@ module FastRake
       1
     end
   end
+
+  def self._hwprefs_available?
+    `which hwprefs` != ''
+  end  
 end

@@ -133,7 +133,7 @@ class FastRake::FastRunner
   end
 
   def puts_failed
-    put_w_time "#{YELLOW}Rerun only the failed tasks with: ['#{@failed_tasks.join(' ')}']#{RESET}"
+    put_w_time "#{RED}Rerun only the failed tasks with: ['#{@failed_tasks.join(' ')}']#{RESET}"
   end
 
   def wait_for_task_with_timeout(pid, timeout=5)
@@ -170,9 +170,10 @@ class FastRake::FastRunner
             kill_remaining_children
           end
         elsif !@fail_fast
-          put_w_time "#{RED}[#{task[:name]}] Build failed. Output is in #{output_path}#{RESET}"
+          put_w_time "#{RED}[#{task[:name]}] Task failed. Output is in #{output_path}#{RESET}"
           @failed_tasks << task[:name]
           @failed = true
+          start_some_children
         end
       end
     rescue Errno::ECHILD
