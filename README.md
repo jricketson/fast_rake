@@ -34,14 +34,19 @@ For example, in lib/tasks/fast.rake
         "quality"
       ]
       
-      FastRake::fast_runner(setup_tasks, tests)
+      FastRake::fast_runner(setup_tasks, tests, true)
     end
     task :fast,[:list] => "fast:two"
   
 Then tasks fast:two, fast:four and fast:eight will have been created, which when run will run the full set of your tests.
+The last parameter specifies whether it should fail fast (stop after the first failure) or instead execute every task (and show all failures). 
 These tasks can also be executed with a specific list of tasks:
 
-    rake "fast:four[task1,task2]"
+    rake fast:four['task1 task2']"
+
+Or you can use:
+    FastRake::fast_runner_task(:smaller_set, 6, setup_tasks, a_smaller_subset, false)
+to create a single task named fast:smaller_set that runs a specific subset of tasks.
 
 ### Databases
 A database is created for each task by the name of the task, to use these you should modify your database.yml to contain something like:

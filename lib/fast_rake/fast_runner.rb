@@ -8,13 +8,15 @@ class FastRake::FastRunner
   YELLOW = "\e[33m"
   RESET = "\033[0m"
 
-  def initialize(tasks, process_count)
+  def initialize(tasks, process_count, fail_fast)
     @tasks = tasks
     @process_count = process_count
+    @fail_fast = fail_fast
     @children = {}
     @parent = true
     @env_number = 0
     @failed=false
+    @failed_tasks=[]
     #put_w_time "Parent PID is: #{Process.pid}"
   end
 
@@ -29,7 +31,14 @@ class FastRake::FastRunner
 
     wait_for_tasks_to_finish
     put_w_time "#{@failed ? RED : GREEN}Elapsed time: #{distance_of_time_to_now(@start)}#{RESET}"
-    raise 'failed fast' if @failed
+    if @failed
+      if @fail_fast
+        raise 'failed fast' 
+      else
+        puts_failed
+        raise 'failed after all'
+      end
+    end
   end
 
   private
@@ -120,7 +129,11 @@ class FastRake::FastRunner
     return if @children.length == 0
     child_names = @children.values.collect { |v| v[:name] }
     outstanding = [current_task[:name], child_names, @tasks].flatten
-    put_w_time "#{YELLOW}Rerun with: ['#{outstanding.join(' ')}']#{RESET}"
+    put_w_time "#{YELLOW}Rerun only the remaining tasks with: ['#{outstanding.join(' ')}']#{RESET}"
+  end
+
+  def puts_failed
+    put_w_time "#{YELLOW}Rerun only the failed tasks with: ['#{@failed_tasks.join(' ')}']#{RESET}"
   end
 
   def wait_for_task_with_timeout(pid, timeout=5)
@@ -148,13 +161,18 @@ class FastRake::FastRunner
           put_w_time "#{GREEN}[#{task[:name]}] Output is in #{output_path}#{RESET}"
           puts_still_running
           start_some_children
-        else
+        elsif @fail_fast
           if !@failed
-            put_w_time "#{RED}[#{task[:name]}] Build failed. Output can be found in #{output_path}#{RESET}"
+            put_w_time "#{RED}[#{task[:name]}] Build failed. Output is in #{output_path}#{RESET}"
             puts_rerun(task)
-            @failed=true
+            @failed = true
+            #killing the remaining children will also trigger this block
             kill_remaining_children
           end
+        elsif !@fail_fast
+          put_w_time "#{RED}[#{task[:name]}] Build failed. Output is in #{output_path}#{RESET}"
+          @failed_tasks << task[:name]
+          @failed = true
         end
       end
     rescue Errno::ECHILD
