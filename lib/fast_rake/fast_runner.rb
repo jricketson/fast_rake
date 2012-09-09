@@ -88,8 +88,8 @@ class FastRake::FastRunner
   def setup_database(task_name)
     ENV["TEST_DB_NAME"] = "test_#{task_string(task_name)}"
     puts "RAILS_ENV is #{ENV["RAILS_ENV"]} and TEST_DB_NAME is #{ENV["TEST_DB_NAME"]}"
-    Rake::Task["db:create"].reenable
-    Rake::Task["db:create"].invoke
+    Rake::Task["db:recreate"].reenable
+    Rake::Task["db:recreate"].invoke
     Rake::Task["db:test:prepare"].reenable
     Rake::Task["db:test:prepare"].invoke
   end
@@ -114,6 +114,13 @@ class FastRake::FastRunner
     return if @children.length == 0
     put_w_time "#{YELLOW}Still running: #{@children.values.collect{|v|v[:name]}.join(' ')}#{RESET}"
     put_w_time "#{YELLOW}Remaining: #{@tasks.join(' ')}#{RESET}"
+  end
+
+  def puts_rerun
+    return if @children.length == 0
+    child_names = @children.values.collect { |v| v[:name] }
+    outstanding = [task[:name], child_names, @tasks].flatten
+    put_w_time "#{YELLOW}Rerun with: ['#{outstanding.join(' ')}']#{RESET}"
   end
 
   def wait_for_task_with_timeout(pid, timeout=5)
@@ -144,7 +151,7 @@ class FastRake::FastRunner
         else
           if !@failed
             put_w_time "#{RED}[#{task[:name]}] Build failed. Output can be found in #{output_path}#{RESET}"
-            puts_still_running
+            puts_rerun
             @failed=true
             kill_remaining_children
           end
