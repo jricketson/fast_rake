@@ -24,7 +24,7 @@ class FastRake::FastRunner
     clean_previous_results
     @start = Time.now
 
-    put_w_time %{Started at #{Time.now.strftime("%H:%M:%S")}}
+    put_w_time %{Started at #{Time.now.strftime("%H:%M:%S")}, (will run #{@process_count} parallel processes)}
     at_exit { kill_remaining_children }
 
     start_some_children

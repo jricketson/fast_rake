@@ -34,18 +34,28 @@ For example, in lib/tasks/fast.rake
         "quality"
       ]
       
-      FastRake::fast_runner(setup_tasks, tests, true)
+      FastRake::fast_runner_task(:all, setup_tasks, tests, true)
     end
-    task :fast,[:list] => "fast:two"
+    task :fast, [:count, :list] => "fast:all"
   
-Then tasks fast:two, fast:four and fast:eight will have been created, which when run will run the full set of your tests.
-The last parameter specifies whether it should fail fast (stop after the first failure) or instead execute every task (and show all failures). 
-These tasks can also be executed with a specific list of tasks:
+Then task:all will have been created, which when run will run the full set of your tests.
 
-    rake fast:four['task1 task2']"
+This will autodetect the number of processors that you have available to run your tasks. If you want to specify the number of processes that should run in parallel, then this accepts a fifth positional parameter. Or you can pass an integer from the command line
+
+    rake fast[4]
+
+The fourth parameter specifies whether it should fail fast (stop after the first failure) or instead execute every task (and show all failures).
+
+These tasks can also be executed with a specific list of tasks (with or without a processor count):
+
+    rake fast:all[,'task1 task2']"
+or
+    rake fast:all[4,'task1 task2']"
 
 Or you can use:
-    FastRake::fast_runner_task(:smaller_set, 6, setup_tasks, a_smaller_subset, false)
+
+    FastRake::fast_runner_task(:smaller_set, setup_tasks, a_smaller_subset, false)
+
 to create a single task named fast:smaller_set that runs a specific subset of tasks.
 
 ### Databases
