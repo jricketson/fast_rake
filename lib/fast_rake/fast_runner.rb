@@ -129,11 +129,11 @@ class FastRake::FastRunner
     return if @children.length == 0
     child_names = @children.values.collect { |v| v[:name] }
     outstanding = [current_task[:name], child_names, @tasks].flatten
-    put_w_time "#{YELLOW}Rerun only the remaining tasks with: ['#{outstanding.join(' ')}']#{RESET}"
+    put_w_time "#{YELLOW}Rerun only the remaining tasks with: [,'#{outstanding.join(' ')}']#{RESET}"
   end
 
   def puts_failed
-    put_w_time "#{RED}Rerun only the failed tasks with: ['#{@failed_tasks.join(' ')}']#{RESET}"
+    put_w_time "#{RED}Rerun only the failed tasks with: [,'#{@failed_tasks.join(' ')}']#{RESET}"
   end
 
   def wait_for_task_with_timeout(pid, timeout=5)
@@ -173,6 +173,7 @@ class FastRake::FastRunner
           put_w_time "#{RED}[#{task[:name]}] Task failed. Output is in #{output_path}#{RESET}"
           @failed_tasks << task[:name]
           @failed = true
+          puts_still_running
           start_some_children
         end
       end
