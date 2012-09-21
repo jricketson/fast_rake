@@ -33,7 +33,7 @@ class FastRake::FastRunner
     put_w_time "#{@failed ? RED : GREEN}Elapsed time: #{distance_of_time_to_now(@start)}#{RESET}"
     if @failed
       if @fail_fast
-        raise 'failed fast' 
+        raise 'failed fast'
       else
         puts_failed
         raise 'failed after all'
@@ -97,10 +97,10 @@ class FastRake::FastRunner
   def setup_database(task_name)
     ENV["TEST_DB_NAME"] = "test_#{task_string(task_name)}"
     puts "RAILS_ENV is #{ENV["RAILS_ENV"]} and TEST_DB_NAME is #{ENV["TEST_DB_NAME"]}"
-    Rake::Task["db:recreate"].reenable
-    Rake::Task["db:recreate"].invoke
-    Rake::Task["db:test:prepare"].reenable
-    Rake::Task["db:test:prepare"].invoke
+    %w{db:load_config db:create db:test:prepare}.each do |task_name|
+      Rake::Task[task_name].reenable
+      Rake::Task[task_name].invoke
+    end
   end
 
   def start_some_children
