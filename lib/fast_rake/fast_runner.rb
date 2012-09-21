@@ -163,14 +163,16 @@ class FastRake::FastRunner
           start_some_children
         elsif @fail_fast
           if !@failed
-            put_w_time "#{RED}[#{task[:name]}] Build failed. Output is in #{output_path}#{RESET}"
+            put_w_time "#{RED}[#{task[:name]}] failed. Elapsed time was #{distance_of_time_to_now(task[:start])}.#{RESET}"
+            put_w_time "#{RED}[#{task[:name]}] Output is in #{output_path}#{RESET}"
             puts_rerun(task)
             @failed = true
             #killing the remaining children will also trigger this block
             kill_remaining_children
           end
         elsif !@fail_fast
-          put_w_time "#{RED}[#{task[:name]}] Task failed. Output is in #{output_path}#{RESET}"
+          put_w_time "#{RED}[#{task[:name]}] failed. Elapsed time was #{distance_of_time_to_now(task[:start])}.#{RESET}"
+          put_w_time "#{RED}[#{task[:name]}] Output is in #{output_path}#{RESET}"
           @failed_tasks << task[:name]
           @failed = true
           puts_still_running
