@@ -91,7 +91,10 @@ class FastRake::FastRunner
     STDERR.reopen(output_path.join('stderr'), 'w')
 
     setup_database(task_name)
-    Rake::Task[task_name].invoke
+    task_match = task_name.match(/([^\[]*)\[?([^\]]*)\]?/)
+    task_name = task_match[1]
+    task_args = task_match[2]
+    Rake::Task[task_name].invoke(task_args)
   end
 
   def setup_database(task_name)
