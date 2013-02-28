@@ -4,7 +4,7 @@ require 'timeout'
 class FastRake::FastRunner
 
   GREEN = "\033[32m"
-  RED = "\033[31m"
+  RED = "\033[31;7m" # sets inverse text (white on red) to make it stand out more
   YELLOW = "\e[33m"
   RESET = "\033[0m"
 
