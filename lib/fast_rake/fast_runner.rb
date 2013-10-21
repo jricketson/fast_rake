@@ -63,7 +63,7 @@ class FastRake::FastRunner
 
     @children.each do |pid, task|
       begin
-        put_w_time "Sending SIGINT to #{pid} (#{task[:name]})"
+        put_w_time "Sending SIGINT to #{pid} (#{task[:display_name]})"
         Process.kill("INT", pid)
         Process.kill("INT", pid) # Twice - cbr / rspec ignore the first one for some reason...
       rescue Exception
@@ -71,7 +71,7 @@ class FastRake::FastRunner
       end
     end
     @children.each do |pid, task|
-      put_w_time "Waiting for #{pid} (#{task[:name]})"
+      put_w_time "Waiting for #{pid} (#{task[:display_name]})"
       wait_for_task_with_timeout(pid)
     end
     @children={}
@@ -81,25 +81,23 @@ class FastRake::FastRunner
     puts %{[#{distance_of_time_to_now(@start)}] #{thing}}
   end
 
-  def run_in_new_env(task_name, env_number)
+  def run_in_new_env(task)
     @parent = false
-    ENV['TEST_ENV_NUMBER'] = env_number.to_s
+    ENV['TEST_ENV_NUMBER'] = task[:env_number].to_s
 
-    output_path = results_folder.join(task_string(task_name))
-    `mkdir -p '#{output_path}'`
-    STDOUT.reopen(output_path.join('stdout'), 'w')
-    STDERR.reopen(output_path.join('stderr'), 'w')
+    `mkdir -p '#{task[:output_path]}'`
+    STDOUT.reopen(task[:output_path].join('stdout'), 'w')
+    STDERR.reopen(task[:output_path].join('stderr'), 'w')
 
-    setup_database(task_name)
-    task_match = task_name.match(/([^\[]*)(?:\[([^\]]*)\])?/)
+    setup_database
+    task_match = task[:name].match(/([^\[]*)(?:\[([^\]]*)\])?/)
     task_name = task_match[1]
-    task_args = task_match[2].split(',')
+    task_args = (task_match[2] || '').split(',')
     Rake::Task[task_name].invoke(*task_args)
   end
 
-  def setup_database(task_name)
-    ENV["TEST_DB_NAME"] = "test_#{task_string(task_name)}"
-    puts "RAILS_ENV is #{ENV["RAILS_ENV"]} and TEST_DB_NAME is #{ENV["TEST_DB_NAME"]}"
+  def setup_database
+    puts "RAILS_ENV is #{ENV["RAILS_ENV"]} and TEST_ENV_NUMBER is #{ENV["TEST_ENV_NUMBER"]}"
     Rake::Task['db:structure:test:load'].reenable
     %w{db:load_config db:create db:test:prepare}.each do |task_name|
       Rake::Task[task_name].reenable
@@ -111,12 +109,24 @@ class FastRake::FastRunner
     while @children.length < @process_count && @tasks.length > 0
       task_name = @tasks.shift
       if !task_name.nil?
+        name, display_name = task_name.split('%')
         @env_number += 1
-        pid = Process.fork { @parent=false; sleep(@env_number / 10); run_in_new_env(task_name, @env_number) }
-        put_w_time "[#{task_name}] started (pid #{pid}); #{@tasks.length} jobs left to start."
-        @children[pid] = {:name => task_name, :start => Time.now}
+        task = {
+          :name => name,
+          :display_name => display_name || name,
+          :start => Time.now,
+          :env_number => @env_number
+        }
+        task[:output_path] = calc_output_path(task[:display_name], @env_number)
+        pid = Process.fork { @parent=false; sleep(@env_number / 10); run_in_new_env(task) }
+        put_w_time "[#{task[:display_name]}] started (pid #{pid}); #{@tasks.length} jobs left to start."
+        @children[pid] = task
       end
     end
+  end
+
+  def calc_output_path(display_name, env_number)
+    results_folder.join("#{task_string(display_name)}_#{env_number}")
   end
 
   def task_string(task_name)
@@ -125,8 +135,8 @@ class FastRake::FastRunner
 
   def puts_still_running
     return if @children.length == 0
-    put_w_time "#{YELLOW}Still running: #{@children.values.collect{|v|v[:name]}.join(' ')}#{RESET}"
-    put_w_time "#{YELLOW}Remaining: #{@tasks.join(' ')}#{RESET}"
+    put_w_time "#{YELLOW}Still running: #{@children.values.collect{|v|v[:display_name]}.join(' ')}#{RESET}"
+    put_w_time "#{YELLOW}Remaining: #{@tasks.collect{|t| t.split('%').last }.join(' ')}#{RESET}"
   end
 
   def puts_rerun(current_task)
@@ -159,24 +169,23 @@ class FastRake::FastRunner
         pid, status = Process.wait2
         task = @children.delete(pid)
         next if task.nil?
-        output_path = results_folder.join(task_string(task[:name]))
         if status.success?
-          put_w_time "#{GREEN}[#{task[:name]}] finished. Elapsed time was #{distance_of_time_to_now(task[:start])}.#{RESET}"
-          put_w_time "#{GREEN}[#{task[:name]}] Output is in #{output_path}#{RESET}"
+          put_w_time "#{GREEN}[#{task[:display_name]}] finished. Elapsed time was #{distance_of_time_to_now(task[:start])}.#{RESET}"
+          put_w_time "#{GREEN}[#{task[:display_name]}] Output is in #{task[:output_path]}#{RESET}"
           puts_still_running
           start_some_children
         elsif @fail_fast
           if !@failed
-            put_w_time "#{RED}[#{task[:name]}] failed. Elapsed time was #{distance_of_time_to_now(task[:start])}.#{RESET}"
-            put_w_time "#{RED}[#{task[:name]}] Output is in #{output_path}#{RESET}"
+            put_w_time "#{RED}[#{task[:display_name]}] failed. Elapsed time was #{distance_of_time_to_now(task[:start])}.#{RESET}"
+            put_w_time "#{RED}[#{task[:display_name]}] Output is in #{task[:output_path]}#{RESET}"
             puts_rerun(task)
             @failed = true
             #killing the remaining children will also trigger this block
             kill_remaining_children
           end
         elsif !@fail_fast
-          put_w_time "#{RED}[#{task[:name]}] failed. Elapsed time was #{distance_of_time_to_now(task[:start])}.#{RESET}"
-          put_w_time "#{RED}[#{task[:name]}] Output is in #{output_path}#{RESET}"
+          put_w_time "#{RED}[#{task[:display_name]}] failed. Elapsed time was #{distance_of_time_to_now(task[:start])}.#{RESET}"
+          put_w_time "#{RED}[#{task[:display_name]}] Output is in #{task[:output_path]}#{RESET}"
           @failed_tasks << task[:name]
           @failed = true
           puts_still_running
