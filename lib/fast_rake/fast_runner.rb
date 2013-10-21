@@ -86,7 +86,7 @@ class FastRake::FastRunner
     ENV['TEST_ENV_NUMBER'] = env_number.to_s
 
     output_path = results_folder.join(task_string(task_name))
-    `mkdir -p #{output_path}`
+    `mkdir -p '#{output_path}'`
     STDOUT.reopen(output_path.join('stdout'), 'w')
     STDERR.reopen(output_path.join('stderr'), 'w')
 
