@@ -93,8 +93,8 @@ class FastRake::FastRunner
     setup_database(task_name)
     task_match = task_name.match(/([^\[]*)\[?([^\]]*)\]?/)
     task_name = task_match[1]
-    task_args = task_match[2]
-    Rake::Task[task_name].invoke(task_args)
+    task_args = task_match[2].split(',')
+    Rake::Task[task_name].invoke(*task_args)
   end
 
   def setup_database(task_name)
