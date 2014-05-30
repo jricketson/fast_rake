@@ -9,7 +9,7 @@ class FastRake::FastRunner
   RESET = "\033[0m"
 
   def initialize(tasks, process_count, fail_fast)
-    @tasks = tasks
+    @tasks = get_task_commands(tasks)
     @process_count = process_count
     @fail_fast = fail_fast
     @children = {}
@@ -42,6 +42,10 @@ class FastRake::FastRunner
   end
 
   private
+
+  def get_task_commands(tasks)
+    tasks.map { |task| task.is_a?(Hash) ? task[:cmd] : task.to_s }
+  end
 
   def results_folder
     Rails.root.join('tmp', 'build')
